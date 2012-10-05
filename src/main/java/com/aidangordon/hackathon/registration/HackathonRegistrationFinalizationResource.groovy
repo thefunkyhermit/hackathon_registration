@@ -8,6 +8,8 @@ import javax.ws.rs.GET
 import javax.ws.rs.core.Response
 import javax.ws.rs.QueryParam
 import org.apache.commons.codec.binary.Base64
+import net.spy.memcached.MemcachedClient
+import net.spy.memcached.AddrUtil
 
 @Path('/hackathon/registration/finalize')
 @Consumes(MediaType.APPLICATION_JSON)
@@ -19,6 +21,11 @@ class HackathonRegistrationFinalizationResource {
         if(!token){
            message = 'You need a valid token in order to finalize your registration for Hacktoria.  Please go to /hackathon/registration to get a fresh one if you need a new one'
         }else{
+
+            MemcachedClient c = new MemcachedClient(
+                    AddrUtil.getAddresses("localhost:11211"));
+
+            println 'token: '+ token +' value: '+ c.get(token)
             message = 'Congratulations!  You are registered and we\'ll see you at Hacktoria!'
         }
         Response.ok(['parameters': token, 'message': Base64.encodeBase64String(message.getBytes())]).build()
